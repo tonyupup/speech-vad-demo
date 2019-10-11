@@ -12,13 +12,15 @@ int add_period_activity(struct periods *per, int is_active, int is_last);
 
 //int add_cut_file_activity(struct cut_info *cut, int is_active, int is_last);
 
-int main() {
-    const char filename[] = "pcm/16k_1.pcm"; // 读取的文件
-    const char output_filename_prefix[] = "16k_1.pcm"; // 保存的文件名
-    const char output_dir[] = "output_pcm"; // 保存的目录
+int split(const char *filename,const char *output_dir) {
+    //const char *filename = argv[1]; // 读取的文件
+    const char output_filename_prefix[] = "16k"; // 保存的文件名
+    //const char *output_dir = argv[2]; // 保存的目录
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
+#ifdef DEBUG
         fprintf(stderr, "%s does not exist\n", filename);
+#endif
         return 3;
     }
     simple_vad *vad = simple_vad_create();
@@ -37,7 +39,9 @@ int main() {
     fclose(fp2);
     simple_vad_free(vad);
     cut_info_free(cut);
+#ifdef DEBUG
     printf("PROGRAM FINISH\n");
+#endif
     return res;
 }
 
@@ -55,7 +59,9 @@ int run(FILE *fp, simple_vad *vad, struct cut_info *cut) {
             add_period_activity(per, is_active, is_last);
             int vad_file_res = cut_add_vad_activity(cut, is_active, is_last);
             if (vad_file_res < 0) {
+#ifdef DEBUG
                 printf("file write success %s\n", cut->result_filename);
+#endif
             }
         } else if (ferror(fp)) {
             printf("read failed  ferror result  : %d\n", ferror(fp));
@@ -88,7 +94,9 @@ int add_period_activity(struct periods *per, int is_active, int is_last) {
     }
     count += 1;
     if (is_last) {
+#ifdef DEBUG
         periods_print(per);
         printf("total frames %d\n", count);
+#endif
     }
 }
